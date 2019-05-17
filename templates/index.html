@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Eagle Pi v0.1</title>
+    <style>
+        form {
+            max-width: 32vw;
+            border: 20px solid black;
+            padding-left: 20px;
+            padding-top: 20px;
+            background-color: grey;
+            color: white;
+            margin: auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+            Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.1;
+        }
+
+        .ins {
+            position: absolute;
+            left: 45vw;
+        }
+
+        input:valid {
+            background-color: lightgreen;
+        }
+
+        input:invalid {
+            background-color: pink;
+        }
+
+        #submit {
+            width: 5vw;
+            height: 6vh;
+        }
+    </style>
+    <script>
+        function validate() 
+        {
+            return true;
+        }
+    </script>
+</head>
+
+<body>
+    <form method="post" action="/login" onsubmit="return validate()">
+        <br> Login
+        <input class="ins" type="text" name="uname" pattern=".{4,}" required>
+        <br>
+        <br> Password
+        <input class="ins" id="pass" type="password" name="pass" required>
+        <br>
+        <br>
+        <br>
+        <br>
+        <button id="submit" type="submit" value="Login">Login</button>
+        <br>
+        <br>
+    </form>
+</body>
+
+</html>

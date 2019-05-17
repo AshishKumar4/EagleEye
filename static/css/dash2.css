@@ -1,0 +1,787 @@
+.column {
+  float: left;
+  width: 33.33%;
+  padding: 5vh;
+
+  background-color: white;
+  height: 300px; /* Should be removed. Only for demonstration */
+}
+.row{
+  padding-bottom: 10px;
+
+}
+
+@font-face {
+  font-family:'Roboto', sans-serif;
+  }
+
+
+.column p{
+  padding-bottom: 3%;
+
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.header {
+  overflow: hidden;
+  padding: 12px 5px;
+  height: 75px;
+  z-index: 1;
+    font-family:'Roboto', sans-serif;
+
+}
+
+p{
+   padding-left: 30px; 
+     font-family:'Roboto', sans-serif;
+
+}
+/* Style the header with a grey background and some padding */
+.header {
+  overflow: hidden;
+  /*background-color: black;*/
+  padding: 12px 5px;
+  height: 75px;
+}
+
+/* Style the header links */
+.header a {
+  float: left;
+  color: white;
+  text-align: center;
+  padding: 12px;
+  text-decoration: none;
+  font-size: 18px;
+  line-height: 35px;
+  border-radius: 4px;
+}
+
+/* Style the logo link (notice that we set the same value of line-height and font-size to prevent the header to increase when the font gets bigger */
+.header a.logo {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+/* Change the background color on mouse-over */
+
+.header a:hover {
+  background-color: #eee;
+  color: black;
+}
+
+/* Style the active/current link*/
+.header a.active {
+  background-color: rgb(166, 196, 226);
+  color: white;
+}
+
+/* Float the link section to the right */
+.header-right {
+  float: right;
+}
+
+
+.txt1{
+  padding-left: 10%;
+  padding-right: 5%;
+  font-weight: bold;
+}
+select{
+  width:20%;
+  
+  border-radius: 25px;
+}
+btn-form{
+  position:relative;
+  padding-left: 15%;
+}
+
+/* Add media queries for responsiveness - when the screen is 500px wide or less, stack the links on top of each other */
+@media screen and (max-width: 500px) {
+  .header a {
+    float: none;
+    display: block;
+    text-align: left;
+  }
+  .header-right {
+    float: none;
+  }
+ 
+}
+
+body{
+    font-family:'Roboto', sans-serif;
+
+}
+.api-keys{
+  position:fixed;
+  margin: 0px auto;
+}
+.sidebar{
+
+  margin-left: 2%;
+  margin-top: 5%;
+}
+
+body{
+  font-size: 18pt;
+
+}
+
+.api-keys{
+  
+  display: inline-block;
+  padding-bottom: 25px;
+}
+
+#grad1 {
+  overflow: auto;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  min-height: 150vh;
+}
+
+.text{
+   display: inline-block;
+     font-family:'Roboto', sans-serif;
+
+}
+.heading{
+  text-align: center;
+    font-family:'Roboto', sans-serif;
+
+}
+
+h1,h2,h3,h4,h5,h6 {
+  margin: 0px;
+    font-family:'Roboto', sans-serif;
+
+}
+
+#inference 
+{
+  width:100%;
+  height:5vh;
+  padding:6%;
+  text-align:center;
+}
+
+#goto-keys
+{
+  margin:5%;
+  text-align:center;
+}
+
+#goto-keys *
+{
+  margin:5px;
+}
+
+#goto-keys textarea 
+{
+  width:100%;height: 160px;
+  color:black;
+  padding:25px;
+}
+
+#goto-keys button,#createModel
+{
+  width:55%;
+  margin:auto;
+
+
+  font-size: 16px;
+  line-height: 1.5;
+  color: #fff;
+  text-transform: uppercase;
+  width: 26%;
+  height: 53px;
+  border-radius: 3px;
+  background:#ffc300;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 25px;
+border-radius: 50px;
+  -webkit-transition: all 0.4s;
+  -o-transition: all 0.4s;
+  -moz-transition: all 0.4s;
+  transition: all 0.4s;
+}
+
+#createModel
+{
+  min-width: 300px;
+}
+
+#goto-keys button
+{    
+  display: inline-block;
+  width: 85px;
+  line-height: 1;
+  height: 35px;
+}
+
+#goto-keys button:hover,#createModel:hover 
+{
+  background: #333333;
+}
+
+#createModel a
+{
+  color:white;
+  font-size:large;
+}
+
+p {
+  font-family:'Roboto', sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #666666;
+  margin: 0px;
+}
+
+ul, li {
+  margin: 0px;
+  list-style-type: none;
+}
+
+/*---------------------------------------------*/
+input {
+  outline: none;
+  border: none;
+}
+
+textarea {
+  outline: none;
+  border: none;
+}
+
+textarea:focus, input:focus {
+  border-color: transparent !important;
+}
+
+input:focus::-webkit-input-placeholder { color:transparent; }
+input:focus:-moz-placeholder { color:transparent; }
+input:focus::-moz-placeholder { color:transparent; }
+input:focus:-ms-input-placeholder { color:transparent; }
+
+textarea:focus::-webkit-input-placeholder { color:transparent; }
+textarea:focus:-moz-placeholder { color:transparent; }
+textarea:focus::-moz-placeholder { color:transparent; }
+textarea:focus:-ms-input-placeholder { color:transparent; }
+
+input::-webkit-input-placeholder { color: #acacac; }
+input:-moz-placeholder { color: #acacac; }
+input::-moz-placeholder { color: #acacac; }
+input:-ms-input-placeholder { color: #acacac; }
+
+textarea::-webkit-input-placeholder { color: #acacac; }
+textarea:-moz-placeholder { color: #acacac; }
+textarea::-moz-placeholder { color: #acacac; }
+textarea:-ms-input-placeholder { color: #acacac; }
+
+/*---------------------------------------------*/
+
+iframe {
+  border: none !important;
+}
+
+
+/*//////////////////////////////////////////////////////////////////
+[ Utility ]*/
+.txt1 {
+  font-family:'Roboto', sans-serif;
+  font-size: 16px;
+  color: #999999;
+  line-height: 1.4;
+}
+
+.bo1 {
+  border-bottom: 1px solid #999999;
+}
+
+.hov1:hover {
+  border-color:#FFc300 ;
+}
+
+
+/*//////////////////////////////////////////////////////////////////
+[ login ]*/
+
+.limiter {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.container-login100 {
+
+  font-family:'Roboto', sans-serif;
+  width: 100%;
+  height: 100vh;
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+position: relative;
+  z-index: 1;
+}
+
+.container-login100::before {
+  content: "";
+  display: block;
+  position: absolute;
+  z-index: -1;
+  width: 80%;
+  height: 100%;
+  top: 0;
+  left: 0;
+ 
+}
+
+.wrap-login100 {
+  width: 50%;
+  background: #e4e1e199;
+  background-size:600px 600px;
+  border-radius: 25px;
+  overflow: hidden;
+  padding: 10px;
+  line-height: 1.5%;
+    font-family:'Roboto', sans-serif;
+  min-width:500px;
+  }
+
+
+
+/*------------------------------------------------------------------
+[  ]*/
+.login100-form {
+  width: 100%;
+  height: 40%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.login100-form-title {
+ font-family:'Roboto', sans-serif;
+ text-shadow: 2px 2px black;
+ font-weight: bold;
+  font-size: 30px;
+  color:white;
+  line-height: 1.2;
+  text-transform: uppercase;
+  text-align: center;
+  width: 100%;
+  display: block;
+  
+}
+
+
+
+
+
+.btn {
+  
+  background-color: #ffc300;
+  border-radius: 25px;
+  width:80px;
+}
+/*---------------------------------------------*/
+
+.wrap-input100 {
+  position: relative;
+  text-align: center;
+  width: 100%;
+  z-index: 1;
+  font-weight: bold;
+
+  border-bottom: 0.5px solid #f5f5f5;
+  line-height: 50px;
+
+}
+
+.input100 {
+  font-family:'Roboto', sans-serif;
+  font-size: 18px;
+  line-height: 1.2;
+  color: #686868;
+  display: block;
+  width: 100%;
+ border-bottom:1px solid grey;
+  height: 62px;
+  border-radius: 5px;
+  padding: 0 30px 0 65px;
+}
+
+
+/*------------------------------------------------------------------
+[ Focus ]*/
+.focus-input100 {
+  display: block;
+  position: absolute;
+  border-radius: 3px;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0px 0px 0px 0px;
+  color:#F09819;
+}
+
+.input100:focus + .focus-input100 {
+  -webkit-animation: anim-shadow 0.5s ease-in-out forwards;
+  animation: anim-shadow 0.5s ease-in-out forwards;
+}
+
+@-webkit-keyframes anim-shadow {
+  to {
+    box-shadow: 0px 0px 60px 20px;
+    opacity: 0;
+  }
+}
+
+@keyframes anim-shadow {
+  to {
+    box-shadow: 0px 0px 60px 20px;
+    opacity: 0;
+  }
+}
+
+.symbol-input100 {
+  font-size: 24px;
+  color: #999999;
+
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  border-radius: 25px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding-left: 23px;
+  padding-bottom: 5px;
+  pointer-events: none;
+
+  -webkit-transition: all 0.4s;
+  -o-transition: all 0.4s;
+  -moz-transition: all 0.4s;
+  transition: all 0.4s;
+}
+
+.input100:focus + .focus-input100 + .symbol-input100 {
+  color: #FFc300;
+  padding-left: 18px;
+}
+
+/*==================================================================
+[ Restyle Checkbox ]*/
+
+
+
+/*------------------------------------------------------------------
+[ Button ]*/
+.container-login100-form-btn {
+  
+  width: 100%;
+  font-family:'Roboto', sans-serif;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+
+.login100-form-btn {
+  
+  font-size: 16px;
+  line-height: 1.5;
+  color: #fff;
+  text-transform: uppercase;
+
+  width: 60%;
+  height: 62px;
+  border-radius: 3px;
+  background:#ffc300;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 25px;
+border-radius: 50px;
+  -webkit-transition: all 0.4s;
+  -o-transition: all 0.4s;
+  -moz-transition: all 0.4s;
+  transition: all 0.4s;
+}
+
+.login100-form-btn:hover {
+  background: #333333;
+}
+
+/*------------------------------------------------------------------
+[ Button sign in with ]*/
+.btn-face,
+.btn-google {
+ font-family:'Roboto', sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: calc((100% - 10px) / 2);
+  height: 40px;
+  border-radius: 3px;
+  border: 1px solid #e6e6e6;
+  background-color: #fff;
+
+  -webkit-transition: all 0.4s;
+  -o-transition: all 0.4s;
+  -moz-transition: all 0.4s;
+  transition: all 0.4s;
+}
+
+
+.btn-face {
+  color: #3b5998;
+}
+
+.btn-face i {
+  font-size: 20px;
+  margin-right: 10px;
+  padding-bottom: 1px;
+}
+
+.btn-google {
+  color: #555555;
+}
+
+.btn-google img {
+  width: 19px;
+  margin-right: 10px;
+  padding-bottom: 1px;
+}
+
+
+.btn-face:hover,
+.btn-google:hover {
+  border-color: #FFc300;
+}
+
+
+
+/*------------------------------------------------------------------
+[ Alert validate ]*/
+
+.validate-input {
+  position: relative;
+}
+
+.alert-validate::before {
+  content: attr(data-validate);
+  position: absolute;
+  max-width: 70%;
+  background-color: white;
+  border: 1px solid #c80000;
+  border-radius: 3px;
+  padding: 4px 25px 4px 10px;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  transform: translateY(-50%);
+  right: 8px;
+  pointer-events: none;
+
+  font-family: Raleway-SemiBold;
+  color: #c80000;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: left;
+
+  visibility: hidden;
+  opacity: 0;
+
+  -webkit-transition: opacity 0.4s;
+  -o-transition: opacity 0.4s;
+  -moz-transition: opacity 0.4s;
+  transition: opacity 0.4s;
+}
+
+.alert-validate::after {
+  content: "\f12a";
+  font-family: FontAwesome;
+  display: block;
+  position: absolute;
+  color: #c80000;
+  font-size: 15px;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  transform: translateY(-50%);
+  right: 13px;
+}
+.container-login100{
+  height: 50%;
+}
+.alert-validate:hover:before {
+  opacity: 1;
+}
+.txt1{
+  color: black;
+  padding-top: 2px;
+}
+.bottom{
+  border-bottom: 2px solid black;
+}
+.text-center{
+  padding-top: 10px;
+  padding-left: 4px;
+  font-weight: bold;
+}
+select{
+  margin-top: 5px;
+  border:2px solid #f5f5f5;
+  background-color: #eee9e9;
+}
+button{
+ margin-top: 5px;
+ font-weight: bold;
+}
+@media (max-width: 992px) {
+  .alert-validate::before {
+    visibility: visible;
+    opacity: 1;
+  }
+}
+
+/*//////////////////////////////////////////////////////////////////
+[ responsive ]*/
+
+@media (max-width: 480px) {
+  .wrap-login100 {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+}
+
+
+
+.table{
+font-family:'Roboto', sans-serif;
+color: white;
+}
+.container{
+  position:relative;
+}
+
+.resume{
+width:30%;
+height: 30%;
+
+display:block;
+margin-right: auto;
+margin-left: auto;
+padding-bottom: 2%;
+}
+
+
+/* Button used to open the contact form - fixed at the bottom of the page */
+
+
+/* The popup form - hidden by default */
+.form-popup {
+  display: none;
+  position: fixed;
+  top: 0;
+  right:1%;
+  z-index: 9;
+ text-align: center;
+}
+
+/* Add styles to the form container */
+.form-container {
+  max-width:100%;
+  padding: 10px;
+  background-color: white;
+}
+.btn1{
+  position: absolute;
+  top: 93%;
+  left: 94%;
+  transform: translate(-93%, -94%);
+  -ms-transform: translate(-93%, -94%);
+}
+
+img{
+  width:95%;
+ align-content: center;
+  border-radius: 20px;
+}
+/* Set a style for the submit/login button */
+.form-container .btn {
+  background-color: #4CAF50;
+
+  color: white;
+  padding:2%;
+  border: none;
+  cursor: pointer;
+  width:100%;
+  margin-bottom:;
+  opacity: 0.8;
+}
+
+.prev{
+  display: none;
+}
+/* Add a red background color to the cancel button */
+.form-container .cancel {
+  background-color:#ffc300;
+}
+
+/* Add some hover effects to buttons */
+.form-container .btn:hover, .open-button:hover {
+  opacity: 1;
+}

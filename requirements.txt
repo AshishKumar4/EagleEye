@@ -1,0 +1,10 @@
+Keras
+pandas
+seaborn
+Flask_RESTful
+matplotlib
+numpy
+tensorflow>=2.0.0a0
+Flask
+tensorflow_hub
+scikit_learn
