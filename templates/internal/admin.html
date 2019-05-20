@@ -1,0 +1,34 @@
+<html>
+
+<head>
+  <title>Eagle Pi v0.1 - Dashboard</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+</head>
+
+<body>
+  <div id="title">
+    <h1>Welcome to the EagleEye Dashboard</h1>
+  </div>
+  <br>
+  <div id="utilities">
+    <div id="update-model">
+      Upload a zip file containing training data, with multiple photos of each <br>
+      person under a folder with their name
+      <form action="/update" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file"/>
+        <input type="submit"/>
+      </form>
+      
+    </div>
+  </div>
+</body>
+
+</html>

@@ -3,7 +3,6 @@ import pickle
 import numpy as np
 import json
 import matplotlib.pyplot as plt
-import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import *
 import sklearn
@@ -15,6 +14,7 @@ import subprocess
 from sklearn.svm import SVC
 
 import cv2
+import tensorflow as tf
 
 np.random.seed(10)
 cascade_path = './cv2/haarcascade_frontalface_alt2.xml'
@@ -44,7 +44,7 @@ def to_rgb(img):
         return img[:, :, :3]
 
 class AIengine: 
-    def __init__(self, modelpath, create = False):
+    def __init__(self, modelpath = './models', create = False):
         try:
             self.modelpath = modelpath 
             classifier = modelpath + "/model.pkl"
@@ -85,9 +85,10 @@ class AIengine:
 
     def embed(self, images, preprocess = False):
         try:
+            status = True
             if preprocess is True:
-                images = self.preprocess(images, 10)
-            return l2_normalize(coreModel.predict(images))
+                images, status = self.preprocess(images, 10)
+            return l2_normalize(coreModel.predict(images)), status
         except Exception as e:
             print("Error in AIengine.embed")
             print(e)
@@ -95,7 +96,7 @@ class AIengine:
 
     def fitImg(self, images, labels):
         try:
-            embs = self.embed(images)
+            embs, status = self.embed(images)
             self.classifier.fit(embs, labels)
             return embs 
         except Exception as e:
@@ -105,7 +106,7 @@ class AIengine:
 
     def fitVec(self, vectors, labels):
         try:
-            embs = vectors#self.embed(images)
+            embs, status = vectors#self.embed(images)
             self.classifier.fit(embs, labels)
             return embs 
         except Exception as e:
@@ -128,15 +129,16 @@ class AIengine:
             print(e)
         return False
 
-    def classifyImg(self, images):
-        return [self.labelDecodeMap[i] for i in self.classifier.predict(self.embed(images))]
+    def classifyImg(self, images, preprocess = True):
+        vectors, status = self.embed(images, preprocess)
+        return [self.labelDecodeMap[i] for i in self.classifier.predict(vectors)], status
     
-    def classifyVec(self, vectors):
-        return [self.labelDecodeMap[i] for i in self.classifier.predict(vectors)]
+    def classifyVec(self, vectors, preprocess):
+        return [self.labelDecodeMap[i] for i in self.classifier.predict(vectors)], True
 
-    def classify(self, data, clfType = 'img'):
+    def classify(self, data, clfType = 'img', preprocess = True):
         try:
-            return self.clfMap[clfType](data)
+            return self.clfMap[clfType](data, preprocess)
         except Exception as e:
             print(clfType)
             print("Error in AIengine.classify")
@@ -145,8 +147,8 @@ class AIengine:
 
     def isSimilar(self, img1, img2, margin = 1.1):
         try:
-            v1 = self.embed([img1])
-            v2 = self.embed([img2])
+            v1, s1 = self.embed([img1])
+            v2, s2 = self.embed([img2])
             dis = distance.euclidean(v1, v2)
             if dis > margin:
                 return False 
@@ -159,8 +161,8 @@ class AIengine:
     
     def isSimilarVec(self, img, vec, margin = 1.1):
         try:
-            v1 = self.embed([img])
-            v2 = vec
+            v1, s1 = self.embed([img])
+            v2, s2 = vec
             dis = distance.euclidean(v1, v2)
             if dis > margin:
                 return False 
@@ -171,7 +173,8 @@ class AIengine:
             print(e)
         return None
 
-    def prewhiten(self, x):
+    @staticmethod
+    def prewhiten(x):
         if x.ndim == 4:
             axis = (1, 2, 3)
             size = x[0].size
@@ -187,40 +190,38 @@ class AIengine:
         y = (x - mean) / std_adj
         return y
 
-    def align_images(self, images, margin):
-        cascade = cv2.CascadeClassifier(cascade_path)
-        
-        aligned_images = []
-        for img in images:
-            faces = cascade.detectMultiScale(img,
-                                            scaleFactor=1.1,
-                                            minNeighbors=3)
-            (x, y, w, h) = faces[0]
-            cropped = img[y-margin//2:y+h+margin//2,
-                        x-margin//2:x+w+margin//2, :]
-            aligned = resize(cropped, (self.image_size, self.image_size), mode='reflect')
-            aligned_images.append(aligned)
-                
-        return np.array(aligned_images)
-
     @staticmethod
-    def preprocess(images, margin = 10, image_size = 160):
-        cascade = cv2.CascadeClassifier(cascade_path)
-        aligned_images = []
-        for img in images:
-            #print(filepath)
-            if type(img) is list:
-                img = np.array(img)
-            if img.dtype in ('uint8', 'int64'):
-                img = img.astype('float')/255.
-            img = to_rgb(img)
-            #plt.imshow(img)
-            #plt.show()
-            img = resize(img, (image_size, image_size), mode='reflect')
-            #plt.imshow(img)
-            #plt.show()
-            aligned_images.append(img)
-        return np.array(aligned_images)
+    def preprocess(images, margin=70, image_size=160):
+        try:
+            faceDetected = True
+            aligned_images = []
+            cascade = cv2.CascadeClassifier(cascade_path)
+            for img in images:
+                # print(filepath)
+                if type(img) is list:
+                    img = np.array(img)
+                img = to_rgb(img)
+                try:
+                    faces = cascade.detectMultiScale(img,
+                                                    scaleFactor=1.1,
+                                                    minNeighbors=3)
+                    (x, y, w, h) = faces[0]
+                    faceDetected = (x, y, w, h)
+                    #print(faces[0].dtype)
+                    cropped = img[y-margin//2:y+h+margin//2,
+                                x-margin//2:x+w+margin//2, :]
+                    img = resize(cropped, (image_size, image_size), mode='reflect')
+                except Exception as e:
+                    print("error in face detection")
+                    print(e)
+                    img = resize(img, (image_size, image_size), mode='reflect')
+                    faceDetected = False
+                aligned_images.append(img)
+                return np.array(aligned_images), faceDetected
+        except Exception as e:
+            print("Error in Preprocess ")
+            print(e)
+            return None
 
     def save(self, modelpath):
         self.modelpath = modelpath 
@@ -234,3 +235,4 @@ class AIengine:
         f.write(pickle.dumps(self.classifier))
         f.close() 
         return True
+
