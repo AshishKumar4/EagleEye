@@ -26,8 +26,8 @@ class Classify(Resource):
             privateModels[obj['user']] = AIengine(userModelRoot(obj))
         images = np.array(obj['data'])
         if obj['preprocess'] == True:
-            images = AIengine.preprocess(images)
-        results = privateModels[obj['user']].classify(images, clfType = obj['type'])
+            images, status = AIengine.preprocess(images)
+        results, status = privateModels[obj['user']].classify(images, clfType = obj['type'])
         #print(np.array(obj['data']).shape)
         print(results)
         return jsonify(results)
@@ -43,8 +43,8 @@ class Train(Resource):
             privateModels[obj['user']] = AIengine(userModelRoot(obj))
         images = np.array(obj['data'])
         if obj['preprocess'] == True:
-            images = AIengine.preprocess(images)
-        results = privateModels[obj['user']].fit(images, obj['labels'], obj['type'])
+            images, status = AIengine.preprocess(images)
+        results, status = privateModels[obj['user']].fit(images, obj['labels'], obj['type'])
         privateModels[obj['user']].save(userModelRoot(obj))
         #print(results)
         return jsonify(results)
@@ -60,15 +60,15 @@ class Similarity(Resource):
             privateModels[obj['user']] = AIengine(userModelRoot(obj))
         img = np.array([obj['img']])
         if obj['preprocess'] == True:
-            img = AIengine.preprocess(img)
+            img, status = AIengine.preprocess(img)
 
         if obj['type'] == 'img':
             data = np.array([obj['data']])
             if obj['preprocess'] == True:
-                data = AIengine.preprocess(data)
-            results = privateModels[obj['user']].isSimilar(img, data)
+                data, status = AIengine.preprocess(data)
+            results = privateModels[obj['user']].isSimilarII(img, data)
         else :
-            results = privateModels[obj['user']].isSimilarVec(np.array([obj['img']]), np.array([obj['data']]))
+            results = privateModels[obj['user']].isSimilarIV(np.array([obj['img']]), np.array([obj['data']]))
         privateModels[obj['user']].save(userModelRoot(obj))
         print(results)
         return jsonify(results)

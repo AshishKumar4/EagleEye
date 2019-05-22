@@ -92,7 +92,7 @@ class AIengine:
         except Exception as e:
             print("Error in AIengine.embed")
             print(e)
-        return None
+        return None, False
 
     def fitImg(self, images, labels):
         try:
@@ -143,33 +143,49 @@ class AIengine:
             print(clfType)
             print("Error in AIengine.classify")
             print(e)
-        return None
+        return None, False
 
-    def isSimilar(self, img1, img2, margin = 1.1):
+    def isSimilarII(self, img1, img2, margin = 1.1):
         try:
-            v1, s1 = self.embed([img1])
-            v2, s2 = self.embed([img2])
+            v1 = self.embed([img1])
+            v2 = self.embed([img2])
             dis = distance.euclidean(v1, v2)
             if dis > margin:
                 return False 
             else:
                 return True
         except Exception as e:
-            print("Error in AIengine.isSimilar")
+            print("Error in AIengine.isSimilarII")
             print(e)
         return None
     
-    def isSimilarVec(self, img, vec, margin = 1.1):
+    def isSimilarIV(self, img, vec, margin = 1.1):
         try:
-            v1, s1 = self.embed([img])
-            v2, s2 = vec
+            v1 = self.embed([img])
+            v2 = vec
             dis = distance.euclidean(v1, v2)
             if dis > margin:
                 return False 
             else:
                 return True
         except Exception as e:
-            print("Error in AIengine.isSimilarVec")
+            print("Error in AIengine.isSimilarIV")
+            print(e)
+        return None
+
+    
+    def isSimilarVV(self, vec1, vec2, margin = 1.0):
+        try:
+            v1 = vec1
+            v2 = vec2
+            dis = distance.euclidean(v1, v2)
+            print(dis)
+            if dis > margin:
+                return False 
+            else:
+                return True
+        except Exception as e:
+            print("Error in AIengine.isSimilarVV")
             print(e)
         return None
 
@@ -221,7 +237,7 @@ class AIengine:
         except Exception as e:
             print("Error in Preprocess ")
             print(e)
-            return None
+            return None, False
 
     def save(self, modelpath):
         self.modelpath = modelpath 
