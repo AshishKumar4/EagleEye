@@ -23,7 +23,7 @@ if tf.__version__ == '2.0.0-alpha0':
     coreModel = tf.keras.models.load_model("./models/facenet_512.h5")
 else:
     import keras
-    coreModel = keras.models.load_model("./models/facenet_512.h5")
+    coreModel = keras.models.load_model("./models/facenet_512_tf1.h5", custom_objects={'tf':tf})
 
 def l2_normalize(x, axis=-1, epsilon=1e-10):
     output = x / np.sqrt(np.maximum(np.sum(np.square(x), axis=axis, keepdims=True), epsilon))
