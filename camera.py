@@ -5,8 +5,17 @@ import matplotlib.pyplot as plt
 cameraMap = dict()
 
 class Camera:
-    def __init__(self, camType="webcam", resolution = (640, 480)):
-        self.camera = cameraMap[camType](resolution)
+    def __init__(self, camType=None, resolution = (640, 480)):
+        if camType is None:
+            try:
+                from picamera import PiCamera   # If its a raspberry pi, This would not through any error
+                print("Raspberry Pi Pi camera Detected, Loading...")
+                self.camera = cameraMap["rpi"](resolution)
+            except Exception as e:
+                print("Webcam detected, Loading...")
+                self.camera = cameraMap["webcam"](resolution)
+        else:
+            self.camera = cameraMap[camType](resolution)
     
     def getFrame(self):
         return self.camera.getFrame()
