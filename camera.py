@@ -1,28 +1,37 @@
 
 import cv2 
 import matplotlib.pyplot as plt
+import numpy as np
 
 cameraMap = dict()
 
+gamma = 1.27
+invGamma = 1.0 / gamma
+gamma_table = np.array([((i / 255.0) ** invGamma) * 255
+    for i in np.arange(0, 256)]).astype("uint8")
+
 class Camera:
-    def __init__(self, camType=None, resolution = (640, 480)):
+    def __init__(self, camType=None, resolution = (640, 480), index = 0):
         if camType is None:
             try:
                 from picamera import PiCamera   # If its a raspberry pi, This would not through any error
                 print("Raspberry Pi Pi camera Detected, Loading...")
-                self.camera = cameraMap["rpi"](resolution)
+                self.camera = piCam(resolution)
             except Exception as e:
                 print("Webcam detected, Loading...")
-                self.camera = cameraMap["webcam"](resolution)
+                self.camera = webCam(resolution, index)
         else:
             self.camera = cameraMap[camType](resolution)
     
     def getFrame(self):
-        return self.camera.getFrame()
+        frame = self.camera.getFrame()
+        frame = cv2.add(frame,np.array([50.0]))#cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
+        frame = cv2.LUT(frame, gamma_table)
+        return frame
 
 class webCam(Camera):
-    def __init__(self, resolution = (640, 480)):
-        self.camera = cv2.VideoCapture(0)
+    def __init__(self, resolution = (640, 480), index = 0):
+        self.camera = cv2.VideoCapture(index)
         self.camera.set(cv2.CAP_PROP_BUFFERSIZE, 1)
     
     def getFrame(self):

@@ -55,10 +55,13 @@ _deps
 
 # Python ->
 __pychache__
-
+*.pyc
 build
 
 
 # Tensorflow/Keras Models ->
 *.h5
 facenet_512.h5
+
+# MXNET Models ->
+*.params

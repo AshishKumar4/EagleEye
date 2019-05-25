@@ -56,4 +56,15 @@ def run():
             cv2.destroyAllWindows()
             break
 
+
+
+
+def run():
+    while True:
+        frame = camera.getFrame()
+        cv2.imshow('frame', frame)
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            cv2.destroyAllWindows()
+            break
+
 #c.classify(c.embed(preprocess(np.array([cv2.imread('./images/Abhishek.jpg')]))), 'vec')

@@ -7,11 +7,34 @@ import json
 import numpy as np
 import argparse
 from scipy.spatial import distance
+import face_recognition
 
 DEVICE_ID = "1"
 CLASSIFIER_ID = "model1"
 
-camera = Camera()
+broker = "iot.eclipse.org"
+broker_port = 1883
+
+def get_args():
+    parser = argparse.ArgumentParser( prog="EagleClient.py",
+                        formatter_class=lambda prog: argparse.HelpFormatter(prog,max_help_position=50),
+                        epilog= '''
+                        This is the client program for Attendence System using Facial Recognition.
+                        It uses MQTT for communication, and is meant to be used on specialised single purpose hardware.
+                        ''')
+    parser.add_argument("broker", default=broker, help="URL/IP for the Broker")
+    parser.add_argument("-p", "--port", default=broker_port, help="Broker connection port")
+    parser.add_argument("-c", "--camera", default=1, help="Camera Index")
+    args = parser.parse_args()
+    return args
+
+args = get_args()
+
+print("Camera index: " + str(args.camera))
+
+global camera
+camera = Camera(index=int(args.camera))
+
 print("Initializing Camera")
 ai_engine = AIengine('./models')
 print("Initializing AI Engine")
@@ -45,13 +68,14 @@ def processedStream():
             continue
         vec, status = ai_engine.embed(pre, preprocess=False)
         name, status = ai_engine.classifyVec(vec, preprocess=False)
-        name = name[0]
-        print(name)
-        cv2.putText(frame, name, (10, 400), cv2.FONT_HERSHEY_SIMPLEX,
-                    2, (255, 255, 255), 4, cv2.LINE_AA)
+        if name is not None:
+            name = name[0]
+            print(name)
+        else:
+            name = "Stranger"
         # Create bounding box as face has been detected
         (x, y, w, h) = detect
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 1)
+        cv2.rectangle(frame, (x, y), (w, h), (0, 255, 0), 1)
         yield (frame, vec, status, name)
         #cv2.imshow('Frame', pre[0])
         # Press Q on keyboard to  exit
@@ -63,12 +87,16 @@ def processedStream():
         # + b'Content-Type: image/jpeg\r\n\r\n' + encface.tobytes() + b'\r\n\r\n')
         #yield (b'--frame\r\n' + b'Content-Type: image/jpeg\r\n\r\n' + encframe.tobytes() + b'\r\n\r\n')
 
-def validateSimilarity(uvecs, vec, k = 0.8):
+def validateSimilarity(uvecs, vec, k = 0.65):
     # Returns true if vec is similar to atleast 'k' fraction of vectors
     frac = round(k*len(uvecs))
-    results = [distance.euclidean(i, vec) for i in uvecs if distance.euclidean(i, vec) <= 0.87]
+    #results = [i for i in face_recognition.compare_faces(uvecs, vec) if i is True]#[np.linalg.norm(vec - i) for i in uvecs if np.linalg.norm(vec - i) <= 0.88]#distance.euclidean(i, vec) <= 0.88]
+    #results = [np.linalg.norm(vec - i) for i in uvecs if np.linalg.norm(vec - i) <= 0.80]
+    results = [distance.cosine(i, vec) for i in uvecs if distance.cosine(i, vec) <= 0.36]
+    #print(results)
     print("Similar to " + str(len(results)) + " Photos of the person out of " + str(len(uvecs)))
     print(results)
+    #print([distance.cosine(i, vec) for i in uvecs])
     if len(results) >= frac:
         return True 
     return False
@@ -77,9 +105,6 @@ def validateSimilarity(uvecs, vec, k = 0.8):
 ######################################################################################################################################
 ############################################################ MQTT Globals ############################################################
 ######################################################################################################################################
-
-broker = "iot.eclipse.org"
-broker_port = 1883
 
 topic_attendence = CLASSIFIER_ID + "/attendence"    # Write only for client
 #topic_update_model = CLASSIFIER_ID + "/update/model"
@@ -183,19 +208,6 @@ client.on_message = on_message
 ######################################################################################################################################
 
 
-def get_args():
-    parser = argparse.ArgumentParser( prog="EagleClient.py",
-                        formatter_class=lambda prog: argparse.HelpFormatter(prog,max_help_position=50),
-                        epilog= '''
-                        This is the client program for Attendence System using Facial Recognition.
-                        It uses MQTT for communication, and is meant to be used on specialised single purpose hardware.
-                        ''')
-    parser.add_argument("broker", default=broker, help="URL/IP for the Broker")
-    parser.add_argument("-p", "--port", default=broker_port, help="Broker connection port")
-    args = parser.parse_args()
-    return args
-
-args = get_args()
 
 client.connect(args.broker.strip(), int(args.port))
 print("Connecting to MQTT Broker")
@@ -206,16 +218,22 @@ print("System initialization completed... Launching main loop")
 
 for i in processedStream():
     frame, vec, detect, name = i 
-    if detect is not False:
+    if detect is not False and name != 'Stranger':
         uvecs = db.getUserVectors(name)
         val = validateSimilarity(uvecs, vec)
         if val is True:
+            text = name
             client.publish(topic_attendence, name.encode('utf-8'))
         elif val is False:
             # The Person is not recognized. Need to send the data to server
+            text = "Stranger"
             print("Person not recognized")
+            cv2.putText(frame, "(maybe " + name + ")", (10, 340), cv2.FONT_HERSHEY_SIMPLEX,
+                        1, (255, 255, 0), 4, cv2.LINE_AA)
             client.publish(topic_control_write, b'nfq' + pickle.dumps(vec))
             # TODO: Wait for the server's response, Remove this to make it asynchronous
+        cv2.putText(frame, text, (10, 400), cv2.FONT_HERSHEY_SIMPLEX,
+                    2, (255, 255, 255), 4, cv2.LINE_AA)
     else:
         print("No Face detected, Maybe come closer!")
     cv2.imshow('frame', frame)
