@@ -65,3 +65,5 @@ facenet_512.h5
 
 # MXNET Models ->
 *.params
+*.dat
+*.hdf5

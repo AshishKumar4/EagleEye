@@ -234,7 +234,7 @@ for i in processedStream():
             client.publish(topic_control_write, b'nfq' + pickle.dumps(vec))
             # TODO: Wait for the server's response, Remove this to make it asynchronous
         cv2.putText(frame, text, (10, 400), cv2.FONT_HERSHEY_SIMPLEX,
-                    2, (255, 255, 255), 4, cv2.LINE_AA)
+                    2, (0, 0, 255), 4, cv2.LINE_AA)
     else:
         print("No Face detected, Maybe come closer!")
     cv2.imshow('frame', frame)
