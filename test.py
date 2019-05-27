@@ -68,3 +68,13 @@ def run():
             break
 
 #c.classify(c.embed(preprocess(np.array([cv2.imread('./images/Abhishek.jpg')]))), 'vec')
+
+
+from ArcFace import *
+import matplotlib.pyplot as plt
+from camera import *
+
+camera = Camera()
+model = ArcFace('./models/arcface')
+frame = camera.getFrame()
+model.embed(frame)

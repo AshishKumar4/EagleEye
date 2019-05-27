@@ -15,12 +15,26 @@ from sklearn.svm import SVC
 from scipy import misc
 
 import cv2
+import dlib
 import tensorflow as tf
 
-from mtcnn.mtcnn import MTCNN
 import mxnet as mx
+from align_dlib import *
 
 np.random.seed(10)
+
+import tensorflow as tf
+if tf.__version__ == '2.0.0-alpha0':
+    coreModel = tf.keras.models.load_model("./models/facenet_512.h5")
+else:
+    import keras
+    coreModel = keras.models.load_model("./models/facenet_512_tf1.h5", custom_objects={'tf': tf})
+"""
+
+#from ArcFace import *
+coreModel = ArcFace('./models/arcface')
+
+"""
 
 cv2_face_detector = cv2.dnn.readNetFromCaffe('./cv2/deploy.prototxt.txt', './cv2/res10_300x300_ssd_iter_140000.caffemodel')
 
@@ -38,7 +52,7 @@ def face_extract_dnn(img, margin=0, image_size=160, model=cv2_face_detector):
             (x1, y1) = [0 if i<0 else i for i in (x1, y1)]
             faceDetected = (x1, y1, x2, y2) 
             cropped = img[y1:y2, x1:x2, :]
-            _img = resize(cropped, (image_size, image_size),
+            _img = resize(cropped, (112, 112),
                           mode='reflect', anti_aliasing=True)
             return _img, faceDetected
         else:
@@ -50,7 +64,9 @@ def face_extract_dnn(img, margin=0, image_size=160, model=cv2_face_detector):
         return img, False
     return None
 
-def face_extract_mtcnn(img, margin=0, image_size=160, model=MTCNN()):
+mtcnnModel = None#MTCNN()
+
+def face_extract_mtcnn(img, margin=0, image_size=160, model=mtcnnModel):
     try:
         detections = model.detect_faces(img)
         confidence = [i['confidence'] for i in detections][0]
@@ -61,8 +77,7 @@ def face_extract_mtcnn(img, margin=0, image_size=160, model=MTCNN()):
             (x1, y1) = [0 if i<0 else i for i in (x1, y1)]
             faceDetected = (x1, y1, x2, y2) 
             cropped = img[y1:y2, x1:x2, :]
-            _img = resize(cropped, (image_size, image_size),
-                          mode='reflect')
+            _img = resize(cropped, (112, 112), mode='reflect')
             return _img, faceDetected
         else:
             return img, False
@@ -84,6 +99,20 @@ def face_extract_haar(img, margin=70, image_size=160, cascade_path='./cv2/haarca
         # print(faces[0].dtype)
         cropped = img[y-margin//2:y+h+margin//2,
                       x-margin//2:x+w+margin//2, :]
+        img = resize(cropped, (112, 112), mode='reflect')
+    except Exception as e:
+        print("error in face detection")
+        print(e)
+        img = resize(img, (112, 112), mode='reflect')
+        faceDetected = False
+    return img, faceDetected
+
+dlib_model = AlignDlibFast('./models/shape_predictor_5_face_landmarks.dat')
+
+def face_extract_dlib(img, margin=70, image_size=160):
+    try:
+        # print(faces[0].dtype)
+        cropped = dlib_model.align_and_crop(img, margin=margin)
         img = resize(cropped, (image_size, image_size), mode='reflect')
     except Exception as e:
         print("error in face detection")
@@ -93,21 +122,13 @@ def face_extract_haar(img, margin=70, image_size=160, cascade_path='./cv2/haarca
     return img, faceDetected
 
 
-if tf.__version__ == '2.0.0-alpha0':
-    coreModel = tf.keras.models.load_model("./models/facenet_512.h5")
-else:
-    import keras
-    coreModel = keras.models.load_model(
-        "./models/facenet_512_tf1.h5", custom_objects={'tf': tf})
-
 def random_rotate_image(image):
     angle = np.random.uniform(low=-10.0, high=10.0)
     return misc.imrotate(image, angle, 'bicubic')
   
 
 def l2_normalize(x, axis=-1, epsilon=1e-10):
-    output = x / np.sqrt(np.maximum(np.sum(np.square(x),
-                                           axis=axis, keepdims=True), epsilon))
+    output = x / np.sqrt(np.maximum(np.sum(np.square(x), axis=axis, keepdims=True), epsilon))
     return output
 
 def do_flip(data):
@@ -138,7 +159,6 @@ class AIengine:
             self.clfMap = {'img': self.classifyImg, 'vec': self.classifyVec}
             self.fitMap = {'img': self.fitImg, 'vec': self.fitVec}
             print(classifier)
-
             if create:
                 print("Creating new AI Engine")
                 #   We Need to create this AI engine and save it on disk
@@ -173,7 +193,7 @@ class AIengine:
 
                 self.image_size = self.metadata['imagesize']  # 160
                 self.margin = self.metadata['similarity_margin']  # 1.1
-
+                """
                 ctx = mx.gpu(0)
                 sym, arg_params, aux_params = mx.model.load_checkpoint(prefix, epoch)
                 all_layers = sym.get_internals()
@@ -183,11 +203,12 @@ class AIengine:
                 model.bind(data_shapes=[('data', (1, 3, image_size[0], image_size[1]))])
                 model.set_params(arg_params, aux_params)
                 self.model = model
+                """
         except Exception as e:
             print("Error in AIengine.init")
             print(e)
         return None
-    
+    """
     def embed_arcface(self, img):
         nimg = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         aligned = np.transpose(nimg, (2,0,1))
@@ -199,15 +220,15 @@ class AIengine:
         embedding = self.model.get_outputs()[0].asnumpy()
         embedding = sklearn.preprocessing.normalize(embedding).flatten()
         return embedding
+        """
 
     def embed(self, images, preprocess=False):
         try:
             status = True
             if preprocess is True:
                 images, status = self.preprocess(images, 10)
-            #emb = l2_normalize(coreModel.predict(images)), status
-
-            return emb
+            emb = l2_normalize(coreModel.predict(images))
+            return emb, status
         except Exception as e:
             print("Error in AIengine.embed")
             print(e)
@@ -256,6 +277,8 @@ class AIengine:
         return val, status
 
     def classifyVec(self, vectors, preprocess):
+        if vectors is None:
+            return None, False
         hashs = self.classifier.predict(vectors)
         val = [self.labelDecodeMap[i] for i in hashs if i in self.labelDecodeMap]
         for i in hashs:
@@ -279,7 +302,7 @@ class AIengine:
         try:
             v1 = self.embed([img1])
             v2 = self.embed([img2])
-            dis = distance.euclidean(v1, v2)
+            dis = distance.cosine(v1, v2)
             if dis > margin:
                 return False
             else:
@@ -293,7 +316,7 @@ class AIengine:
         try:
             v1 = self.embed([img])
             v2 = vec
-            dis = distance.euclidean(v1, v2)
+            dis = distance.cosine(v1, v2)
             if dis > margin:
                 return False
             else:
@@ -307,7 +330,7 @@ class AIengine:
         try:
             v1 = vec1
             v2 = vec2
-            dis = distance.euclidean(v1, v2)
+            dis = distance.cosine(v1, v2)
             print(dis)
             if dis > margin:
                 return False
@@ -336,22 +359,32 @@ class AIengine:
         return y
 
     @staticmethod
-    def preprocess(images, margin=0, image_size=160, model_path='./cv2/haarcascade_frontalface_alt2.xml', face_extract_algo=face_extract_dnn):
+    def preprocess(images, margin=10, image_size=160, face_extract_algo=face_extract_dnn):
         try:
             faceDetected = True
             aligned_images = []
             for img in images:
-                # print(filepath)
                 if type(img) is list:
                     img = np.array(img)
                 img = to_rgb(img)
-                img, faceDetected = face_extract_algo(img, margin)
+                bb = dlib_model.getLargestFaceBoundingBox(img)
+                if bb is None:
+                    print("dlib couldn't find any face, using dnn...")
+                    aligned = img
+                    _img, faceDetected = face_extract_dnn(aligned, margin, image_size = image_size)
+                else:
+                    aligned = dlib_model.align(img, bb=bb)
+                    if aligned is None:
+                        print("Error! No aligned photo")
+                        aligned = img
+                    _img, ss = face_extract_dnn(aligned, margin, image_size = image_size)
+                    x, y, w, h = face_utils.rect_to_bb(bb)
+                    faceDetected = (x, y, x + w, y + h)
                 if faceDetected is False:
-                    # img, faceDetected = AIengine.face_extract_haar(img)
-                    # if faceDetected is False:
-                    #    continue
+                    print("No face detected")
+                    print(type(aligned))
                     continue
-                aligned_images.append(img)
+                aligned_images.append(_img)
             if len(aligned_images) == 0:
                 return images, False
             return np.array(aligned_images), faceDetected
