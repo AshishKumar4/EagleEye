@@ -92,7 +92,7 @@ def validateSimilarity(uvecs, vec, k = 0.65):
     frac = round(k*len(uvecs))
     #results = [i for i in face_recognition.compare_faces(uvecs, vec) if i is True]#[np.linalg.norm(vec - i) for i in uvecs if np.linalg.norm(vec - i) <= 0.88]#distance.euclidean(i, vec) <= 0.88]
     #results = [np.linalg.norm(vec - i) for i in uvecs if np.linalg.norm(vec - i) <= 0.80]
-    results = [distance.cosine(i, vec) for i in uvecs if distance.cosine(i, vec) <= 0.80]
+    results = [distance.cosine(i, vec) for i in uvecs if distance.cosine(i, vec) <= 0.5]
     #print(results)
     print("Similar to " + str(len(results)) + " Photos of the person out of " + str(len(uvecs)))
     print(results)

@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import cv2
 import pickle
 import json
@@ -5,7 +6,7 @@ import numpy as np
 import argparse
 
 import os 
-import subprocess.getoutput
+import subprocess
 
 from camera import *
 
@@ -15,7 +16,7 @@ def get_args():
                         epilog= '''
                         This is a simple script to capture and generate datasets as well as generate the model
                         ''')
-    parser.add_argument("url", default=broker, help="URL/IP for the backend model generator")
+    parser.add_argument("url", default="iot.eclipse.org", help="URL/IP for the backend model generator")
     parser.add_argument("-c", "--camera", default=1, help="Camera Index")
     #parser.add_argument("-url", "--port", default=broker_port, help="Broker connection port")
     args = parser.parse_args()
@@ -23,7 +24,7 @@ def get_args():
 
 args = get_args()
 
-q = 'y'
+q = 'n'
 print("Camera index: " + str(args.camera))
 
 global camera
@@ -31,30 +32,30 @@ camera = Camera(index=int(args.camera))
 
 print("Welcome to dataset and model generator. Just keep inserting labels and click photos...")
 
-path = input("Insert the root where images need to be stored")
+path = input("Insert the root where images need to be stored ")
 if "No such file or directory" in subprocess.getoutput("ls " + path):
     subprocess.getoutput("mkdir " + path)
 
 imgs = list()
 labels = list()
 
-while q != 'n':
+while q != 'y':
     name = input("\nEnter the name/ID of the subject: ")
     n = int(input("How many photos to click? "))
-    if "No such file or directory" in subprocess.getoutput("ls " + path + '\\' + name):
-        subprocess.getoutput("mkdir " + path)
+    if "No such file or directory" in subprocess.getoutput("ls " + path + "/" + name):
+        subprocess.getoutput("mkdir " + path + "/" + name)
     for i in range(0, n):
         print("\t\tPress 'q' to capture the photo. ")
         while True:
             img = camera.getFrame()
-            imgs.append(np.array(img).tolist())
-            labels.append(name)
             cv2.imshow('Frame', img)
             #Press Q on keyboard to  exit
             if cv2.waitKey(25) & 0xFF == ord('q'):
+                imgs.append(np.array(img).tolist())
+                labels.append(name)
                 cv2.destroyAllWindows()
                 break
-        cv2.imwrite(name + "." + str(i) + ".png")
+        cv2.imwrite(path + "/" + name + "/" + name + "." + str(i) + ".png", img)
         print("\tImage saved")
     q = input("Do you want exit? (y/n) ")
 
