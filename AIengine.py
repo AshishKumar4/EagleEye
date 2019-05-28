@@ -31,9 +31,8 @@ else:
     coreModel = keras.models.load_model("./models/facenet_512_tf1.h5", custom_objects={'tf': tf})
 """
 
-#from ArcFace import *
+from ArcFace import *
 coreModel = ArcFace('./models/arcface')
-
 """
 
 cv2_face_detector = cv2.dnn.readNetFromCaffe('./cv2/deploy.prototxt.txt', './cv2/res10_300x300_ssd_iter_140000.caffemodel')
@@ -52,7 +51,7 @@ def face_extract_dnn(img, margin=0, image_size=160, model=cv2_face_detector):
             (x1, y1) = [0 if i<0 else i for i in (x1, y1)]
             faceDetected = (x1, y1, x2, y2) 
             cropped = img[y1:y2, x1:x2, :]
-            _img = resize(cropped, (112, 112),
+            _img = resize(cropped, (160, 160),
                           mode='reflect', anti_aliasing=True)
             return _img, faceDetected
         else:
@@ -77,7 +76,7 @@ def face_extract_mtcnn(img, margin=0, image_size=160, model=mtcnnModel):
             (x1, y1) = [0 if i<0 else i for i in (x1, y1)]
             faceDetected = (x1, y1, x2, y2) 
             cropped = img[y1:y2, x1:x2, :]
-            _img = resize(cropped, (112, 112), mode='reflect')
+            _img = resize(cropped, (160, 160), mode='reflect')
             return _img, faceDetected
         else:
             return img, False
@@ -99,11 +98,11 @@ def face_extract_haar(img, margin=70, image_size=160, cascade_path='./cv2/haarca
         # print(faces[0].dtype)
         cropped = img[y-margin//2:y+h+margin//2,
                       x-margin//2:x+w+margin//2, :]
-        img = resize(cropped, (112, 112), mode='reflect')
+        img = resize(cropped, (160, 160), mode='reflect')
     except Exception as e:
         print("error in face detection")
         print(e)
-        img = resize(img, (112, 112), mode='reflect')
+        img = resize(img, (160, 160), mode='reflect')
         faceDetected = False
     return img, faceDetected
 
