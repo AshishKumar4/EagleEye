@@ -23,17 +23,35 @@ from align_dlib import *
 
 np.random.seed(10)
 
+"""
 import tensorflow as tf
 if tf.__version__ == '2.0.0-alpha0':
     coreModel = tf.keras.models.load_model("./models/facenet_512.h5")
 else:
     import keras
     coreModel = keras.models.load_model("./models/facenet_512_tf1.h5", custom_objects={'tf': tf})
+DISTANCE_THRESHOLD = 0.40
+final_img_size = 160
 """
-
 from ArcFace import *
 coreModel = ArcFace('./models/arcface')
-"""
+DISTANCE_THRESHOLD = 0.46
+final_img_size = 112
+
+def validateSimilarity(uvecs, vec, k = 0.65):
+    # Returns true if vec is similar to atleast 'k' fraction of vectors
+    frac = round(k*len(uvecs))
+    #results = [i for i in face_recognition.compare_faces(uvecs, vec) if i is True]#[np.linalg.norm(vec - i) for i in uvecs if np.linalg.norm(vec - i) <= 0.88]#distance.euclidean(i, vec) <= 0.88]
+    #results = [np.linalg.norm(vec - i) for i in uvecs if np.linalg.norm(vec - i) <= 0.80]
+    results = [distance.cosine(i, vec) for i in uvecs if distance.cosine(i, vec) <= DISTANCE_THRESHOLD]   # 0.75 for ArcFace
+    #print(results)
+    print("Similar to " + str(len(results)) + " Photos of the person out of " + str(len(uvecs)))
+    print(results)
+    #print([distance.cosine(i, vec) for i in uvecs])
+    if len(results) >= frac:
+        return True 
+    print([distance.cosine(i, vec) for i in uvecs])
+    return False
 
 cv2_face_detector = cv2.dnn.readNetFromCaffe('./cv2/deploy.prototxt.txt', './cv2/res10_300x300_ssd_iter_140000.caffemodel')
 
@@ -51,7 +69,7 @@ def face_extract_dnn(img, margin=0, image_size=160, model=cv2_face_detector):
             (x1, y1) = [0 if i<0 else i for i in (x1, y1)]
             faceDetected = (x1, y1, x2, y2) 
             cropped = img[y1:y2, x1:x2, :]
-            _img = resize(cropped, (160, 160),
+            _img = resize(cropped, (final_img_size, final_img_size),
                           mode='reflect', anti_aliasing=True)
             return _img, faceDetected
         else:
@@ -76,7 +94,7 @@ def face_extract_mtcnn(img, margin=0, image_size=160, model=mtcnnModel):
             (x1, y1) = [0 if i<0 else i for i in (x1, y1)]
             faceDetected = (x1, y1, x2, y2) 
             cropped = img[y1:y2, x1:x2, :]
-            _img = resize(cropped, (160, 160), mode='reflect')
+            _img = resize(cropped, (final_img_size, final_img_size), mode='reflect')
             return _img, faceDetected
         else:
             return img, False
@@ -98,11 +116,11 @@ def face_extract_haar(img, margin=70, image_size=160, cascade_path='./cv2/haarca
         # print(faces[0].dtype)
         cropped = img[y-margin//2:y+h+margin//2,
                       x-margin//2:x+w+margin//2, :]
-        img = resize(cropped, (160, 160), mode='reflect')
+        img = resize(cropped, (final_img_size, final_img_size), mode='reflect')
     except Exception as e:
         print("error in face detection")
         print(e)
-        img = resize(img, (160, 160), mode='reflect')
+        img = resize(img, (final_img_size, final_img_size), mode='reflect')
         faceDetected = False
     return img, faceDetected
 
@@ -371,6 +389,8 @@ class AIengine:
                     print("dlib couldn't find any face, using dnn...")
                     aligned = img
                     _img, faceDetected = face_extract_dnn(aligned, margin, image_size = image_size)
+                    # Comment above lines an uncomment below lines to ignore bad quality face images
+                    #continue
                 else:
                     aligned = dlib_model.align(img, bb=bb)
                     if aligned is None:

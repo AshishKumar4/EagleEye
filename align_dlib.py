@@ -275,7 +275,7 @@ class AlignDlibFast:
 
     #pylint: disable=dangerous-default-value
     def align(self, rgbImg, bb=None,
-              landmarks=None, skipMulti=False, scale=1.0):
+              landmarks=None, skipMulti=False, scale=1.0, size=150, padding=0.25):
         """align(rgbImg, bb=None, landmarks=None, landmarkIndices=INNER_EYES_AND_BOTTOM_LIP)
 
         Transform and align a face in an image.
@@ -309,7 +309,7 @@ class AlignDlibFast:
             landmarks = self.findLandmarks(rgbImg, bb)
 
         # It just aligns, dosen't crop
-        frame = dlib.get_face_chip(rgbImg, landmarks)
+        frame = dlib.get_face_chip(rgbImg, landmarks, size=size, padding=padding)
         
         return frame
 

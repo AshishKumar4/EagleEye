@@ -87,22 +87,6 @@ def processedStream():
         # + b'Content-Type: image/jpeg\r\n\r\n' + encface.tobytes() + b'\r\n\r\n')
         #yield (b'--frame\r\n' + b'Content-Type: image/jpeg\r\n\r\n' + encframe.tobytes() + b'\r\n\r\n')
 
-def validateSimilarity(uvecs, vec, k = 0.65):
-    # Returns true if vec is similar to atleast 'k' fraction of vectors
-    frac = round(k*len(uvecs))
-    #results = [i for i in face_recognition.compare_faces(uvecs, vec) if i is True]#[np.linalg.norm(vec - i) for i in uvecs if np.linalg.norm(vec - i) <= 0.88]#distance.euclidean(i, vec) <= 0.88]
-    #results = [np.linalg.norm(vec - i) for i in uvecs if np.linalg.norm(vec - i) <= 0.80]
-    results = [distance.cosine(i, vec) for i in uvecs if distance.cosine(i, vec) <= 0.43]   # 0.75 for ArcFace
-    #print(results)
-    print("Similar to " + str(len(results)) + " Photos of the person out of " + str(len(uvecs)))
-    print(results)
-    #print([distance.cosine(i, vec) for i in uvecs])
-    if len(results) >= frac:
-        return True 
-    print([distance.cosine(i, vec) for i in uvecs])
-    return False
-
-
 ######################################################################################################################################
 ############################################################ MQTT Globals ############################################################
 ######################################################################################################################################
@@ -229,8 +213,7 @@ for i in processedStream():
             # The Person is not recognized. Need to send the data to server
             text = "Stranger"
             print("Person not recognized")
-            cv2.putText(frame, "(maybe " + name + ")", (10, 340), cv2.FONT_HERSHEY_SIMPLEX,
-                        1, (255, 255, 0), 4, cv2.LINE_AA)
+            #cv2.putText(frame, "(maybe " + name + ")", (10, 340), cv2.FONT_HERSHEY_SIMPLEX,1, (255, 255, 0), 4, cv2.LINE_AA)
             client.publish(topic_control_write, b'nfq' + pickle.dumps(vec))
             # TODO: Wait for the server's response, Remove this to make it asynchronous
         cv2.putText(frame, text, (10, 400), cv2.FONT_HERSHEY_SIMPLEX,

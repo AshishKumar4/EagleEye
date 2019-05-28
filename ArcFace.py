@@ -6,12 +6,17 @@ import sklearn.preprocessing
 
 class ArcFace:
     def __init__(self, model_path = 'arcface', image_size = (112, 112)):
-        ctx = mx.gpu(0)
         sym, arg_params, aux_params = mx.model.load_checkpoint(model_path, 0)
         all_layers = sym.get_internals()
         sym = all_layers['fc1_output']
-        model = mx.mod.Module(symbol=sym, context=ctx, label_names = None)
-        model.bind(data_shapes=[('data', (1, 3, image_size[0], image_size[1]))])
+        try:
+            model = mx.mod.Module(symbol=sym, context=mx.gpu(0), label_names = None)
+            model.bind(data_shapes=[('data', (1, 3, image_size[0], image_size[1]))])
+        except Exception as e:
+            if "Compile with USE_CUDA" in e:
+                print("GPU Not found, Using CPU...")
+                model = mx.mod.Module(symbol=sym, context=mx.cpu(), label_names = None)
+                model.bind(data_shapes=[('data', (1, 3, image_size[0], image_size[1]))])
         model.set_params(arg_params, aux_params)
         self.model = model
 
