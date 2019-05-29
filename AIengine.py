@@ -23,20 +23,20 @@ from align_dlib import *
 
 np.random.seed(10)
 
-"""
 import tensorflow as tf
 if tf.__version__ == '2.0.0-alpha0':
     coreModel = tf.keras.models.load_model("./models/facenet_512.h5")
 else:
     import keras
     coreModel = keras.models.load_model("./models/facenet_512_tf1.h5", custom_objects={'tf': tf})
-DISTANCE_THRESHOLD = 0.40
+DISTANCE_THRESHOLD = 0.4
 final_img_size = 160
 """
 from ArcFace import *
 coreModel = ArcFace('./models/arcface')
 DISTANCE_THRESHOLD = 0.46
 final_img_size = 112
+"""
 
 def validateSimilarity(uvecs, vec, k = 0.65):
     # Returns true if vec is similar to atleast 'k' fraction of vectors
@@ -51,6 +51,7 @@ def validateSimilarity(uvecs, vec, k = 0.65):
     if len(results) >= frac:
         return True 
     print([distance.cosine(i, vec) for i in uvecs])
+    print([distance.euclidean(i, vec) for i in uvecs])
     return False
 
 cv2_face_detector = cv2.dnn.readNetFromCaffe('./cv2/deploy.prototxt.txt', './cv2/res10_300x300_ssd_iter_140000.caffemodel')
@@ -239,7 +240,7 @@ class AIengine:
         return embedding
         """
 
-    def embed(self, images, preprocess=False):
+    def embed(self, images, preprocess=False, detections=False):
         try:
             status = True
             if preprocess is True:
@@ -380,6 +381,7 @@ class AIengine:
         try:
             faceDetected = True
             aligned_images = []
+            detections = []
             for img in images:
                 if type(img) is list:
                     img = np.array(img)
@@ -403,10 +405,11 @@ class AIengine:
                     print("No face detected")
                     print(type(aligned))
                     continue
+                detections.append(faceDetected)
                 aligned_images.append(_img)
             if len(aligned_images) == 0:
                 return images, False
-            return np.array(aligned_images), faceDetected
+            return np.array(aligned_images), detections
         except Exception as e:
             print("Error in Preprocess ")
             print(e)

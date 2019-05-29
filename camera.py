@@ -39,6 +39,16 @@ class webCam(Camera):
         frame = cv2.flip(frame,1)
         return frame
 
+class kinnectCam(Camera):
+    def __init__(self, resolution = (640, 480), feed='/dev/video2'):
+        self.camera = cv2.VideoCapture(feed)
+        self.camera.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    
+    def getFrame(self):
+        ret, frame = self.camera.read()
+        frame = cv2.flip(frame,1)
+        return frame
+
 class piCam(Camera):
     def __init__(self, resolution = (640, 480)):
         from picamera.array import PiRGBArray
@@ -54,3 +64,4 @@ class piCam(Camera):
 
 cameraMap['rpi'] = piCam
 cameraMap['webcam'] = webCam
+cameraMap['kinnect'] = kinnectCam

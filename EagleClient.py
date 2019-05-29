@@ -25,6 +25,7 @@ def get_args():
     parser.add_argument("broker", default=broker, help="URL/IP for the Broker")
     parser.add_argument("-p", "--port", default=broker_port, help="Broker connection port")
     parser.add_argument("-c", "--camera", default=1, help="Camera Index")
+    parser.add_argument("-t", "--camera_type", default='kinnect', help="Camera Type (kinnect/rpi/webcam")
     args = parser.parse_args()
     return args
 
@@ -33,7 +34,7 @@ args = get_args()
 print("Camera index: " + str(args.camera))
 
 global camera
-camera = Camera(index=int(args.camera))
+camera = Camera(index=args.camera, camType=args.camera_type)
 
 print("Initializing Camera")
 ai_engine = AIengine('./models')
@@ -74,7 +75,7 @@ def processedStream():
         else:
             name = "Stranger"
         # Create bounding box as face has been detected
-        (x, y, w, h) = detect
+        (x, y, w, h) = detect[0]
         cv2.rectangle(frame, (x, y), (w, h), (0, 255, 0), 1)
         yield (frame, vec, status, name)
         #cv2.imshow('Frame', pre[0])
